@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MEXT English Mastery - Patch 1</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-box h2 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .correct-count h2 {
+            color: #22c55e;
+        }
+
+        .wrong-count h2 {
+            color: #ef4444;
+        }
+
+        .score-count h2 {
+            color: #38bdf8;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .question {
+            font-size: 1.1rem;
+            margin-bottom: 18px;
+            color: #f8fafc;
+        }
+
+        .options button {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            background: #e2e8f0;
+            color: #0f172a;
+            transition: 0.25s ease;
+            font-weight: 500;
+        }
+
+        .options button:hover {
+            transform: scale(1.01);
+            background: #cbd5e1;
+        }
+
+        .correct {
+            background: #22c55e !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .wrong {
+            background: #ef4444 !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        .summary {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .summary p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #e2e8f0;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 18px;
+            background: #334155;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            transition: 0.4s;
+        }
+
+        @media(max-width:600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stat-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h1>MEXT English Exam Mastery</h1>
+            <p>Practice Questions 1 - 500</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box correct-count">
+                <h2 id="correct">0</h2>
+                <p>Correct</p>
+            </div>
+
+            <div class="stat-box wrong-count">
+                <h2 id="wrong">0</h2>
+                <p>Wrong</p>
+            </div>
+
+            <div class="stat-box score-count">
+                <h2 id="score">0%</h2>
+                <p>Score</p>
+            </div>
+        </div>
+
+        <div id="quiz"></div>
+
+        <div class="summary" id="summary">
+            <h2>Quiz Completed 🎉</h2>
+
+            <p>Total Questions: <span id="totalQ"></span></p>
+            <p>Correct Answers: <span id="finalCorrect"></span></p>
+            <p>Wrong Answers: <span id="finalWrong"></span></p>
+            <p>Final Score: <span id="finalScore"></span></p>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+
+        const questionBank = [
+            { q: "Alice had to ( ) how to solve her financial problems.", options: ["clear out", "figure out", "make up with", "suffer from"], a: 1 },
+            { q: "We should emphasize that our skin cream contains only natural ( ).", options: ["aspects", "flavors", "genetics", "ingredients"], a: 3 },
+            { q: "As my son and I journeyed down the path, I was ( ) aware of the dangers.", options: ["earnestly", "inadvertently", "keenly", "slowly"], a: 2 },
+            { q: "If you have a smartphone, you can check in well ( ).", options: ["at first", "for now", "in advance", "on time"], a: 2 },
+            { q: "With the ( ) of genetic engineering, the time for evolution may collapse.", options: ["advent", "departure", "heyday", "prime time"], a: 0 },
+            { q: "It is important to know if there is a charge to ( ) heavy penalties.", options: ["accept", "avoid", "request", "risk"], a: 1 },
+            { q: "The boy was caught stealing, but seeing his ( ) the owner did not call police.", options: ["arrogance", "impudence", "morality", "remorse"], a: 3 },
+            { q: "You should protect your network to ( ) unauthorized access.", options: ["deter", "dispute", "negotiate", "reveal"], a: 0 },
+            { q: "Our students can get answers from experts who would otherwise be ( ).", options: ["impossible", "inaccessible", "inappropriate", "incapable"], a: 1 },
+            { q: "The chairperson is the leader and ( ) of the session.", options: ["contender", "dictator", "facilitator", "terminator"], a: 2 },
+            { q: "Ten days ( ) the disaster, the government released a report.", options: ["after", "forward", "later", "on"], a: 0 },
+            { q: "The foliage emerges purple but ( ) green as the season progresses.", options: ["adjusts", "signals", "takes", "turns"], a: 3 },
+            { q: "( ) you be unable to attend, please let us know.", options: ["Could", "May", "Should", "Will"], a: 2 },
+            { q: "( ) you are leaving so early? It's only six o'clock.", options: ["How about", "How come", "Why", "Why not"], a: 1 },
+            { q: "The professor ( ) as a founder of modern chemistry.", options: ["has refers", "is referred", "is referred to", "refers to"], a: 2 },
+            { q: "Sea salts are produced in shallow beds ( ) salt is deposited by the tide.", options: ["that", "where", "which", "whose"], a: 1 },
+            { q: "I think ( ) you to let him stay on here.", options: ["it's so generous for", "it's so generous of", "there's so generous for", "there's so generous of"], a: 1 },
+            { q: "I expect you ( ) this assignment by next week.", options: ["remembering finishing", "remembering to finish", "to remember finishing", "to remember to finish"], a: 3 },
+            { q: "Excuse me, is it possible to ( ) here?", options: ["caused it cashed", "got it cashing", "have it cashed", "made it cashing"], a: 2 },
+            { q: "Switzerland is less densely equipped with dormitories than ( ).", options: ["France and Austria", "of France and Austria", "that of France and Austria", "those of France and Austria"], a: 3 },
+            { q: "A judge should be ( ) in a case.", options: ["disengaged", "disgruntled", "disinterested", "disposed"], a: 2 },
+            { q: "Research explained how humans ( ) their biological rhythm.", options: ["adapt", "behave", "conclude", "escape"], a: 0 },
+            { q: "You look a bit ( ). Are you all right?", options: ["beyond repair", "in the pink", "off the top of your head", "under the weather"], a: 3 },
+            { q: "These scientists identified mechanisms ( ) light on biology.", options: ["pointing", "receiving", "shedding", "showing"], a: 2 },
+            { q: "Some insects manage to escape ( ) by merging with the background.", options: ["defense", "destiny", "detection", "detention"], a: 2 },
+            { q: "The word 'emoji' is ( ) from Japanese.", options: ["a borrowing", "an export", "an import", "a rental"], a: 2 },
+            { q: "I'm afraid I'm ( ) a cold.", options: ["catching up with", "coming down with", "falling for", "sickening with"], a: 1 },
+            { q: "The director spread her arms ( ) in a welcoming gesture.", options: ["broad", "extensive", "large", "wide"], a: 3 },
+            { q: "He said that he would be back right ( ).", options: ["away", "down", "on", "promptly"], a: 0 },
+            { q: "The coordinator is responsible for all aspects, ( ) training.", options: ["as well as", "but for", "in addition", "no less than"], a: 0 },
+            { q: "My PC is lighter than yours ( ) 100 grams.", options: ["at", "by", "in", "on"], a: 1 },
+            { q: "'Have you ever seen an ice skating show?' 'Yes, I have seen ( ) in Tokyo.'", options: ["any", "it", "one", "some"], a: 2 },
+            { q: "If your tablet ( ) fail, the company will send a replacement.", options: ["could", "might", "should", "would"], a: 2 },
+            { q: "( ) no telling what he would actually do on this issue.", options: ["Here is", "It is", "This is", "There is"], a: 3 },
+            { q: "My father knows little about fencing, and ( ).", options: ["neither do I", "neither I do", "so do I", "so I do"], a: 0 },
+            { q: "The house was beyond repair, so my father had ( ).", options: ["it rebuild", "it rebuilt", "it rebuilding", "it to be rebuilt"], a: 1 },
+            { q: "Energy is transferred, and the rate ( ) energy is transferred is 'power'.", options: ["at which", "of which", "to which", "whose"], a: 0 },
+            { q: "The new prime minister demanded that his speech ( ) memorized.", options: ["be", "is", "was", "would be"], a: 0 },
+            { q: "It is worth ( ) to check the area out for yourself.", options: ["for you to do", "for your doing", "you to do", "your doing"], a: 3 },
+            { q: "I ( ) after the first couple of months.", options: ["got used to driving", "got used to drive", "used to driving", "used to drive"], a: 0 },
+            { q: "'Thank you for coming. Don't ( ) to visit us again.'", options: ["determine", "hesitate", "mean", "request"], a: 1 },
+            { q: "Take some exercise and you'll have a good ( ).", options: ["appetite", "custom", "mindset", "shape"], a: 0 },
+            { q: "A new study reports a strategy to ( ) noise when collecting food.", options: ["abandon", "crack", "minimize", "stand"], a: 2 },
+            { q: "Thanks to the ( ) of the instructor, I overcame my fear.", options: ["donation", "encouragement", "improvement", "negotiation"], a: 1 },
+            { q: "The driver ( ) started the car, nearly hitting a pole.", options: ["cautiously", "inevitably", "notoriously", "recklessly"], a: 3 },
+            { q: "A lot of environmentalists insist that a ( ) change is necessary.", options: ["drastic", "restful", "rural", "superficial"], a: 0 },
+            { q: "A tourist center with a ( ) facade has won an award.", options: ["distinctive", "feasible", "punctual", "reluctant"], a: 0 },
+            { q: "Employees ( ) the news that they succeeded before it was official.", options: ["censored", "leaked", "obeyed", "prescribed"], a: 1 },
+            { q: "People are refraining from spending due to economic ( ).", options: ["capability", "dismiss", "prosperity", "uncertainty"], a: 3 },
+            { q: "The trophy and certificate were ( ) to Jessica and Allison.", options: ["awarded", "inclined", "opposed", "subscribed"], a: 0 },
+            { q: "The Vienna Boys' Choir sang ( ) celebration of the group's first home.", options: ["in", "by", "against", "to"], a: 0 },
+            { q: "Police are trying to find clues ( ) why a tunnel collapsed.", options: ["as with", "as to", "as for", "as of"], a: 1 },
+            { q: "It's ( ) that more discoveries of new energy will be made.", options: ["partly", "highly", "mostly", "likely"], a: 3 },
+            { q: "Japanese drivers can put their feet ( ) more due to automatic brakes.", options: ["for", "up", "on", "with"], a: 1 },
+            { q: "They could give a facelift to some ancient objects and help ( ) cultural assets.", options: ["preserve", "preserves", "preserving", "preserved"], a: 0 },
+            { q: "The hole in the ozone layer is smaller and is ( ) to recovery.", options: ["of importance", "in question", "on track", "by contrast"], a: 2 },
+            { q: "NASA has found evidence ( ) a stream once flowed on Mars.", options: ["which", "where", "that", "what"], a: 2 },
+            { q: "Some Americans spend hours in traffic, burning fuel ( ) they wait.", options: ["even as", "until when", "to the point", "on the way"], a: 0 },
+            { q: "Venice is under water as heavy rains and high tides ( ) 70 percent of the city.", options: ["will flood", "is flooding", "was flooded", "have flooded"], a: 1 },
+            { q: "Many depression sufferers are not receiving treatment because many ( ) acknowledge their illness.", options: ["cope with", "fail to", "hope to", "put up with"], a: 1 },
+            { q: "Some patients of hay fever have symptoms including ( ).", options: ["diagnoses", "medicines", "patients", "symptoms"], a: 3 },
+            { q: "The president believes all ( ) in her company should help one another.", options: ["customers", "employees", "retirees", "thermometers"], a: 1 },
+            { q: "Some people will ( ) in their efforts to stop smoking.", options: ["award", "depress", "succeed", "testify"], a: 2 },
+            { q: "He would never do anything to ( ) the future of his government.", options: ["buffer", "falter", "jeopardize", "vandalize"], a: 2 },
+            { q: "She didn't sound very ( ) about the idea of her parents visiting.", options: ["enthusiastic", "exclusive", "pleasant", "provocative"], a: 0 },
+            { q: "The tension between those countries was almost ( ).", options: ["discrepant", "flippant", "feasible", "tangible"], a: 3 },
+            { q: "My daughter studied those subjects ( ) in order to pass the exams.", options: ["diligently", "hardly", "permanently", "superficially"], a: 0 },
+            { q: "A recent survey revealed that the ( ) majority of small businesses go broke.", options: ["agonizing", "overwhelming", "painstaking", "sustaining"], a: 1 },
+            { q: "Climbing a ladder leaves soldiers highly ( ) to attack.", options: ["courageous", "dangerous", "responsible", "vulnerable"], a: 3 },
+            { q: "In this country, the film market is ( ) by a few major corporations.", options: ["benefited", "confiscated", "dominated", "witnessed"], a: 2 },
+            { q: "We will now discuss the ( ) merits of each candidate.", options: ["respectable", "respectful", "respect", "respective"], a: 3 },
+            { q: "You should submit this form ( ) Friday, April 3.", options: ["in advance", "no later than", "previously", "beforehand"], a: 1 },
+            { q: "Don't you find ( ) unpleasant walking in the heavy rain?", options: ["it", "one", "yourself", "that"], a: 0 },
+            { q: "( ) for your constant advice, we couldn't have overcome the problem.", options: ["Should it not be", "As", "Without", "Had it not been"], a: 3 },
+            { q: "John spent 50 dollars and had his watch ( ) at a shop.", options: ["to repair", "repair", "repaired", "repairing"], a: 2 },
+            { q: "The organizer ordered the receptionists to take names of ( ) comes.", options: ["what", "which", "whoever", "whom"], a: 2 },
+            { q: "The Japanese population is expected to shrink ( ) a pace unseen.", options: ["at", "in", "on", "by"], a: 0 },
+            { q: "Strange ( ) it may seem, there is no agreed-upon way to distinguish language and dialect.", options: ["as", "although", "so", "despite"], a: 0 },
+            { q: "We still don't know exactly ( ) many insects or sea creatures there are.", options: ["what", "how", "that", "whether"], a: 1 },
+            { q: "In the 20th century there ( ) still places where you could pay with shells.", options: ["used to be", "was", "being", "were"], a: 3 },
+            { q: "They were given the task of protecting the man for the ( ) of the trial.", options: ["attack", "basis", "duration", "error"], a: 2 },
+            { q: "No one is ( ) to enter the premises while renovations are under way.", options: ["denied", "deserved", "permitted", "recorded"], a: 2 },
+            { q: "It would have been ( ) impossible to make sure all information was correct.", options: ["alternatively", "exactly", "hopefully", "virtually"], a: 3 },
+            { q: "That was ( ) the most spectacular success story in the country.", options: ["arguably", "enthusiastically", "eventually", "painstakingly"], a: 0 },
+            { q: "Patients shouldn't be expected to understand medical ( ) or terminology.", options: ["composure", "diabetes", "foundation", "jargon"], a: 3 },
+            { q: "The board of directors decided to ( ) the meeting until next month.", options: ["get along with", "put off", "set up", "take aback"], a: 1 },
+            { q: "New buildings should ( ) the existing environment.", options: ["construct", "establish", "memorize", "preserve"], a: 3 },
+            { q: "Mars' surface was shaped by meteorite impacts, eruptions, and ( ) by dust.", options: ["adoption", "erosion", "resilience", "violence"], a: 1 },
+            { q: "Terror attacks led to ( ) levels of security in airports.", options: ["dismissible", "transient", "unprecedented", "vibrant"], a: 2 },
+            { q: "The researchers found that the system was in ( ) danger of collapse.", options: ["imminent", "precautious", "presumptuous", "recent"], a: 0 },
+            { q: "Would you mind ( ) on the sofa?", options: ["my laying", "my lying", "for me to lie", "for me to lay"], a: 1 },
+            { q: "Your boss will demand that you ( ) it immediately.", options: ["join", "joining", "to join", "would join"], a: 0 },
+            { q: "If you’re not involved in your community group, there isn’t ( ) you can do.", options: ["a few", "each", "many", "much"], a: 3 },
+            { q: "I decided I'm going to buy ( ) today because I lost mine.", options: ["it", "one", "some", "that"], a: 1 },
+            { q: "The philosopher’s interest is how ( ) relates to the world.", options: ["that we say", "to say", "should we say", "what we say"], a: 3 },
+            { q: "To sum up, his argument is that morality is ( ) than cultural conventions.", options: ["as equal", "everything less", "not so much", "nothing more"], a: 3 },
+            { q: "This picture, ( ) I paid ten thousand dollars, was painted by a famous artist.", options: ["for that", "for which", "that", "which"], a: 1 },
+            { q: "You can see many monks in meditation ( ).", options: ["for their eyes closed", "for their eyes closing", "with their eyes closed", "with their eyes closing"], a: 2 },
+            { q: "It took a long time, but it seems now she ( ) to new situations.", options: ["is used to adjust", "is used to adjusting", "used to adjust", "used to adjusting"], a: 1 },
+            { q: "This shampoo includes many special ingredients which ( ).", options: ["are smelled sweet", "are smelled sweetly", "smell sweet", "smell sweetly"], a: 2 },
+            { q: "The committee decided to ( ) the plan due to lack of funds.", options: ["carry out", "call off", "look into", "put up"], a: 1 },
+            { q: "( ) of the rain, the soccer match continued as scheduled.", options: ["In spite", "Despite", "Although", "Even"], a: 1 },
+            { q: "She is looking forward to ( ) you next week.", options: ["see", "seeing", "saw", "seen"], a: 1 },
+            { q: "This is the house ( ) I was born.", options: ["which", "that", "where", "in which"], a: 2 },
+            { q: "Neither the teacher nor the students ( ) aware of the change.", options: ["was", "were", "is", "has been"], a: 1 },
+            { q: "The book ( ) on the table is mine.", options: ["lying", "laying", "laid", "lied"], a: 0 },
+            { q: "By the time he arrived, the train ( ).", options: ["already left", "already leaves", "had already left", "has already left"], a: 2 },
+            { q: "I would rather ( ) at home than go out.", options: ["to stay", "stay", "staying", "stayed"], a: 1 },
+            { q: "If he ( ) harder, he would have passed.", options: ["worked", "had worked", "has worked", "would work"], a: 1 },
+            { q: "She is the woman ( ) husband is a doctor.", options: ["who", "whom", "whose", "which"], a: 2 },
+            { q: "It's high time we ( ) for the airport.", options: ["left", "leave", "have left", "will leave"], a: 0 },
+            { q: "Hardly ( ) the house when it began to rain.", options: ["he had left", "had he left", "he left", "did he leave"], a: 1 },
+            { q: "( ) being tired, she finished her homework.", options: ["Despite", "Although", "Even though", "However"], a: 0 },
+            { q: "Not only ( ) beautiful but also intelligent.", options: ["is she", "she is", "she be", "be she"], a: 0 },
+            { q: "I'm not used to ( ) up so early.", options: ["get", "getting", "got", "be getting"], a: 1 },
+            { q: "He insisted that he ( ) innocent.", options: ["is", "be", "was", "would be"], a: 1 },
+            { q: "There is no point ( ) about it now.", options: ["to argue", "argue", "arguing", "argued"], a: 2 },
+            { q: "Unless you ( ) your best, you won't win.", options: ["do", "don't do", "did", "won't do"], a: 0 },
+            { q: "He suggested that we ( ) a taxi.", options: ["take", "to take", "took", "taking"], a: 0 },
+            { q: "( ) as I may, I cannot understand the problem.", options: ["Try", "Trying", "Tried", "To try"], a: 0 },
+            { q: "This is ( ) a difficult task.", options: ["too", "so", "such", "very"], a: 2 },
+            { q: "( ) his advice, I would have failed.", options: ["But for", "If", "Unless", "Because"], a: 0 },
+            { q: "The rumor proved to ( ) false.", options: ["be", "have been", "being", "been"], a: 0 },
+            { q: "I am not ( ) of doing such a thing.", options: ["able", "capable", "possible", "potential"], a: 1 },
+            { q: "Please ( ) attention to what I say.", options: ["pay", "give", "take", "hold"], a: 0 },
+            { q: "We are looking ( ) to meeting you.", options: ["on", "forward", "after", "at"], a: 1 },
+            { q: "She takes ( ) her mother in looks.", options: ["in", "off", "after", "up"], a: 2 },
+            { q: "The meeting was put ( ) until tomorrow.", options: ["off", "out", "on", "up"], a: 0 },
+            { q: "I ran ( ) an old friend today.", options: ["into", "up", "after", "by"], a: 0 },
+            { q: "They have ( ) of milk.", options: ["run out", "run away", "run into", "run over"], a: 0 },
+            { q: "You must abide ( ) the rules.", options: ["to", "by", "with", "at"], a: 1 },
+            { q: "He is addicted ( ) video games.", options: ["to", "for", "with", "at"], a: 0 },
+            { q: "Are you aware ( ) the risk?", options: ["of", "with", "to", "at"], a: 0 },
+            { q: "She is satisfied ( ) the result.", options: ["with", "at", "by", "of"], a: 0 },
+            { q: "It is essential ( ) you to study.", options: ["for", "of", "to", "with"], a: 0 },
+            { q: "He succeeded ( ) passing the exam.", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "This car is superior ( ) that one.", options: ["to", "than", "over", "by"], a: 0 },
+            { q: "I am interested ( ) learning English.", options: ["in", "on", "at", "to"], a: 0 },
+            { q: "She is familiar ( ) the town.", options: ["with", "to", "at", "by"], a: 0 },
+            { q: "He apologized ( ) being late.", options: ["for", "to", "at", "on"], a: 0 },
+            { q: "The team is composed ( ) five members.", options: ["of", "by", "with", "from"], a: 0 },
+            { q: "He is very good ( ) math.", options: ["at", "in", "with", "to"], a: 0 },
+            { q: "Don't be afraid ( ) making mistakes.", options: ["of", "to", "at", "with"], a: 0 },
+            { q: "I prefer tea ( ) coffee.", options: ["to", "than", "over", "more than"], a: 0 },
+            { q: "She is proud ( ) her son.", options: ["of", "in", "at", "with"], a: 0 },
+            { q: "He is responsible ( ) the project.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "This is similar ( ) the one I have.", options: ["to", "with", "as", "like"], a: 0 },
+            { q: "They are different ( ) each other.", options: ["from", "to", "than", "with"], a: 0 },
+            { q: "It is kind ( ) you to help.", options: ["of", "for", "to", "with"], a: 0 },
+            { q: "She is busy ( ) her work.", options: ["with", "at", "in", "to"], a: 0 },
+            { q: "I have been ( ) for an hour.", options: ["waiting", "waited", "to wait", "wait"], a: 0 },
+            { q: "She left the door ( ).", options: ["open", "opening", "opened", "to open"], a: 0 },
+            { q: "I saw him ( ) the street.", options: ["cross", "crossing", "crossed", "to cross"], a: 0 },
+            { q: "He made me ( ) it again.", options: ["do", "doing", "to do", "done"], a: 0 },
+            { q: "I heard my name ( ).", options: ["called", "calling", "call", "to call"], a: 0 },
+            { q: "It is no use ( ) now.", options: ["crying", "to cry", "cry", "cried"], a: 0 },
+            { q: "She spent the day ( ) TV.", options: ["watching", "to watch", "watch", "watched"], a: 0 },
+            { q: "He is used to ( ) alone.", options: ["living", "live", "lived", "to live"], a: 0 },
+            { q: "Stop ( ) so much noise.", options: ["making", "to make", "make", "made"], a: 0 },
+            { q: "I forgot ( ) the door.", options: ["locking", "to lock", "lock", "locked"], a: 1 },
+            { q: "Please remember ( ) the lights off.", options: ["turning", "to turn", "turn", "turned"], a: 1 },
+            { q: "He tried ( ) the door, but it was locked.", options: ["opening", "to open", "open", "opened"], a: 1 },
+            { q: "I regret ( ) you the bad news.", options: ["telling", "to tell", "tell", "told"], a: 1 },
+            { q: "He went on ( ) after a short break.", options: ["working", "to work", "work", "worked"], a: 0 },
+            { q: "The law needs ( ).", options: ["changing", "to change", "change", "changed"], a: 0 },
+            { q: "She is keen ( ) music.", options: ["on", "in", "at", "to"], a: 0 },
+            { q: "I am fond ( ) reading.", options: ["of", "in", "at", "to"], a: 0 },
+            { q: "He was tired ( ) walking.", options: ["of", "from", "at", "by"], a: 0 },
+            { q: "It is famous ( ) its history.", options: ["for", "of", "to", "with"], a: 0 },
+            { q: "She is good ( ) languages.", options: ["at", "in", "with", "to"], a: 0 },
+            { q: "I am surprised ( ) the news.", options: ["at", "in", "of", "to"], a: 0 },
+            { q: "He is worried ( ) the exam.", options: ["about", "of", "with", "at"], a: 0 },
+            { q: "She is married ( ) a doctor.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "He is disappointed ( ) the score.", options: ["with", "at", "in", "by"], a: 0 },
+            { q: "I am bored ( ) this book.", options: ["with", "at", "in", "of"], a: 0 },
+            { q: "She is anxious ( ) the results.", options: ["about", "of", "to", "for"], a: 0 },
+            { q: "He is popular ( ) his students.", options: ["with", "at", "among", "by"], a: 0 },
+            { q: "This room is full ( ) people.", options: ["of", "with", "at", "in"], a: 0 },
+            { q: "She is angry ( ) me.", options: ["with", "at", "to", "by"], a: 0 },
+            { q: "I am sorry ( ) that.", options: ["for", "about", "to", "at"], a: 0 },
+            { q: "It is different ( ) the old one.", options: ["from", "to", "than", "with"], a: 0 },
+            { q: "He is responsible ( ) his actions.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "She is independent ( ) her parents.", options: ["of", "from", "at", "with"], a: 0 },
+            { q: "He is capable ( ) great things.", options: ["of", "to", "at", "with"], a: 0 },
+            { q: "I am sure ( ) it.", options: ["of", "about", "to", "at"], a: 0 },
+            { q: "She is ready ( ) the trip.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "He is surprised ( ) her success.", options: ["at", "by", "in", "of"], a: 0 },
+            { q: "I am tired ( ) doing the same thing.", options: ["of", "from", "at", "with"], a: 0 },
+            { q: "She is useful ( ) the team.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is essential ( ) our success.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am happy ( ) your progress.", options: ["with", "at", "for", "to"], a: 0 },
+            { q: "She is nice ( ) everyone.", options: ["to", "for", "with", "at"], a: 0 },
+            { q: "He is polite ( ) his elders.", options: ["to", "for", "with", "at"], a: 0 },
+            { q: "It is typical ( ) him to do that.", options: ["of", "for", "to", "with"], a: 0 },
+            { q: "She is absent ( ) class today.", options: ["from", "at", "in", "to"], a: 0 },
+            { q: "He is capable ( ) speaking three languages.", options: ["of", "to", "at", "with"], a: 0 },
+            { q: "I am fond ( ) sweets.", options: ["of", "in", "at", "to"], a: 0 },
+            { q: "She is interested ( ) art.", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "He is accustomed ( ) cold weather.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "I am waiting ( ) the bus.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "He is jealous ( ) her success.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "She is suspicious ( ) his motives.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "I am grateful ( ) your help.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "He is similar ( ) his brother.", options: ["to", "with", "as", "like"], a: 0 },
+            { q: "She is sensitive ( ) criticism.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am familiar ( ) the city.", options: ["with", "to", "at", "by"], a: 0 },
+            { q: "He is involved ( ) the project.", options: ["in", "with", "at", "to"], a: 0 },
+            { q: "She is keen ( ) sports.", options: ["on", "in", "at", "to"], a: 0 },
+            { q: "I am ashamed ( ) my behavior.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "He is eligible ( ) the scholarship.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "She is accustomed ( ) hard work.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "I am opposed ( ) this idea.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "He is obsessed ( ) the game.", options: ["with", "at", "in", "of"], a: 0 },
+            { q: "She is composed ( ) calm.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "I am curious ( ) the result.", options: ["about", "of", "to", "for"], a: 0 },
+            { q: "He is liable ( ) error.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is allergic ( ) pollen.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am conscious ( ) the danger.", options: ["of", "about", "to", "at"], a: 0 },
+            { q: "He is hopeless ( ) math.", options: ["at", "in", "with", "to"], a: 0 },
+            { q: "She is prone ( ) accidents.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am indebted ( ) you.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is immune ( ) the disease.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is fearful ( ) the dark.", options: ["of", "about", "to", "at"], a: 0 },
+            { q: "I am doubtful ( ) the outcome.", options: ["about", "of", "to", "for"], a: 0 },
+            { q: "He is essential ( ) our goal.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is relevant ( ) the topic.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am partial ( ) chocolate.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is addicted ( ) sugar.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is superior ( ) her peers.", options: ["to", "than", "over", "by"], a: 0 },
+            { q: "I am prone ( ) headaches.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is dedicated ( ) his work.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is indifferent ( ) the result.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am entitled ( ) a refund.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is subject ( ) rules.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is equivalent ( ) that.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am devoted ( ) my family.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is confined ( ) his room.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is hostile ( ) him.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am resistant ( ) change.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is harmful ( ) the environment.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is beneficial ( ) health.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am faithful ( ) my word.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is loyal ( ) his friend.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is kind ( ) animals.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am blind ( ) his faults.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is indifferent ( ) public opinion.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is accustomed ( ) the climate.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "I am sensitive ( ) the heat.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is equal ( ) the task.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "She is close ( ) retirement.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "I am ( ) interested in that topic.", options: ["highly", "fast", "deep", "greatly"], a: 0 },
+            { q: "The answer is ( ) correct.", options: ["entirely", "wholly", "completely", "all of these"], a: 3 },
+            { q: "We must work ( ) to finish.", options: ["diligently", "fast", "quick", "soon"], a: 0 },
+            { q: "He ( ) speaks to me.", options: ["hardly", "seldom", "rarely", "all of these"], a: 3 },
+            { q: "She ( ) studies at night.", options: ["usually", "often", "frequently", "all of these"], a: 3 },
+            { q: "The train ( ) left when I arrived.", options: ["already", "yet", "still", "ever"], a: 0 },
+            { q: "I have ( ) been to Paris.", options: ["never", "ever", "yet", "still"], a: 0 },
+            { q: "He ( ) goes to the gym.", options: ["seldom", "often", "usually", "all of these"], a: 3 },
+            { q: "It is ( ) cold today.", options: ["bitterly", "very", "extremely", "all of these"], a: 3 },
+            { q: "She ( ) finished her essay.", options: ["just", "yet", "still", "ever"], a: 0 },
+            { q: "They are ( ) exhausted.", options: ["completely", "very", "totally", "all of these"], a: 3 },
+            { q: "He ( ) reads the news.", options: ["regularly", "often", "frequently", "all of these"], a: 3 },
+            { q: "I ( ) understand the lesson.", options: ["barely", "hardly", "scarcely", "all of these"], a: 3 },
+            { q: "She ( ) eats fast food.", options: ["seldom", "rarely", "hardly ever", "all of these"], a: 3 },
+            { q: "It ( ) rains here.", options: ["rarely", "seldom", "hardly", "all of these"], a: 3 },
+            { q: "We ( ) agree on the plan.", options: ["fully", "completely", "entirely", "all of these"], a: 3 },
+            { q: "He ( ) passed the test.", options: ["barely", "hardly", "scarcely", "all of these"], a: 3 },
+            { q: "She ( ) listens to music.", options: ["frequently", "often", "regularly", "all of these"], a: 3 },
+            { q: "It is ( ) impossible to know.", options: ["virtually", "almost", "practically", "all of these"], a: 3 },
+            { q: "He ( ) travels abroad.", options: ["seldom", "rarely", "occasionally", "all of these"], a: 3 },
+            { q: "She ( ) finished the work.", options: ["already", "just", "yet", "ever"], a: 0 },
+            { q: "I have ( ) met him before.", options: ["never", "ever", "already", "yet"], a: 0 },
+            { q: "They ( ) see each other.", options: ["hardly", "seldom", "rarely", "all of these"], a: 3 },
+            { q: "It is ( ) true.", options: ["partially", "partly", "somewhat", "all of these"], a: 3 },
+            { q: "He ( ) works on Sundays.", options: ["never", "rarely", "seldom", "all of these"], a: 3 },
+            { q: "She ( ) waits for the bus.", options: ["patiently", "calmly", "quietly", "all of these"], a: 3 },
+            { q: "I ( ) remember his name.", options: ["hardly", "scarcely", "barely", "all of these"], a: 3 },
+            { q: "He ( ) writes poetry.", options: ["occasionally", "sometimes", "rarely", "all of these"], a: 3 },
+            { q: "It is ( ) raining.", options: ["still", "yet", "already", "ever"], a: 0 },
+            { q: "She ( ) arrives on time.", options: ["usually", "generally", "typically", "all of these"], a: 3 },
+            { q: "I have ( ) read this book.", options: ["already", "just", "yet", "ever"], a: 0 },
+            { q: "He ( ) laughs.", options: ["hardly", "seldom", "rarely", "all of these"], a: 3 },
+            { q: "She ( ) drives to work.", options: ["sometimes", "occasionally", "frequently", "all of these"], a: 3 },
+            { q: "It is ( ) quiet here.", options: ["extremely", "very", "incredibly", "all of these"], a: 3 },
+            { q: "He ( ) complains.", options: ["rarely", "seldom", "never", "all of these"], a: 3 },
+            { q: "She ( ) speaks loudly.", options: ["seldom", "rarely", "hardly ever", "all of these"], a: 3 },
+            { q: "I ( ) know him.", options: ["barely", "hardly", "scarcely", "all of these"], a: 3 },
+            { q: "He ( ) helps me.", options: ["frequently", "often", "regularly", "all of these"], a: 3 },
+            { q: "It is ( ) hot.", options: ["very", "extremely", "incredibly", "all of these"], a: 3 },
+            { q: "She ( ) visits her hometown.", options: ["occasionally", "sometimes", "rarely", "all of these"], a: 3 },
+            { q: "I ( ) agree with you.", options: ["fully", "completely", "totally", "all of these"], a: 3 },
+            { q: "He ( ) finishes his work.", options: ["usually", "generally", "typically", "all of these"], a: 3 },
+            { q: "She ( ) reads books.", options: ["frequently", "often", "regularly", "all of these"], a: 3 },
+            { q: "It is ( ) dark.", options: ["almost", "practically", "virtually", "all of these"], a: 3 },
+            { q: "He ( ) travels by train.", options: ["sometimes", "occasionally", "rarely", "all of these"], a: 3 },
+            { q: "She ( ) smiles.", options: ["rarely", "seldom", "hardly", "all of these"], a: 3 },
+            { q: "I ( ) drink coffee.", options: ["rarely", "seldom", "never", "all of these"], a: 3 },
+            { q: "He ( ) makes mistakes.", options: ["hardly", "scarcely", "barely", "all of these"], a: 3 },
+            { q: "She ( ) walks in the park.", options: ["often", "frequently", "regularly", "all of these"], a: 3 },
+            { q: "It is ( ) finished.", options: ["almost", "nearly", "practically", "all of these"], a: 3 },
+            { q: "I prefer to live ( ) a quiet area.", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "He lives ( ) 221B Baker Street.", options: ["at", "in", "on", "by"], a: 0 },
+            { q: "We arrived ( ) Tokyo yesterday.", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "The cat is sitting ( ) the roof.", options: ["on", "in", "at", "to"], a: 0 },
+            { q: "He was born ( ) 1990.", options: ["in", "at", "on", "by"], a: 0 },
+            { q: "The meeting starts ( ) 9:00 AM.", options: ["at", "in", "on", "by"], a: 0 },
+            { q: "We meet ( ) Mondays.", options: ["on", "in", "at", "by"], a: 0 },
+            { q: "I haven't seen him ( ) last week.", options: ["since", "for", "in", "by"], a: 0 },
+            { q: "I have known her ( ) ten years.", options: ["for", "since", "in", "by"], a: 0 },
+            { q: "He climbed ( ) the ladder.", options: ["up", "on", "at", "in"], a: 0 },
+            { q: "She jumped ( ) the river.", options: ["into", "in", "at", "to"], a: 0 },
+            { q: "The bird flew ( ) the tree.", options: ["over", "on", "at", "in"], a: 0 },
+            { q: "We walked ( ) the bridge.", options: ["across", "in", "at", "to"], a: 0 },
+            { q: "The pen is ( ) the book and the notebook.", options: ["between", "among", "in", "at"], a: 0 },
+            { q: "He is the tallest ( ) the group.", options: ["among", "between", "in", "at"], a: 0 },
+            { q: "I am busy ( ) my homework.", options: ["with", "at", "in", "on"], a: 0 },
+            { q: "She is angry ( ) him for being late.", options: ["at", "with", "to", "for"], a: 1 },
+            { q: "Are you interested ( ) science?", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "He is scared ( ) spiders.", options: ["of", "at", "in", "with"], a: 0 },
+            { q: "We were surprised ( ) the results.", options: ["at", "in", "on", "to"], a: 0 },
+            { q: "I am proud ( ) your achievement.", options: ["of", "in", "at", "with"], a: 0 },
+            { q: "She is responsible ( ) the event.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "323. I am looking forward ( ) meeting you.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He insists ( ) paying the bill.", options: ["on", "in", "at", "to"], a: 0 },
+            { q: "They arrived ( ) the airport early.", options: ["at", "in", "on", "to"], a: 0 },
+            { q: "She is married ( ) a teacher.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "We are concerned ( ) the climate.", options: ["about", "of", "to", "for"], a: 0 },
+            { q: "He succeeded ( ) winning the game.", options: ["in", "at", "on", "to"], a: 0 },
+            { q: "I am used ( ) working hard.", options: ["to", "with", "at", "by"], a: 0 },
+            { q: "They congratulated him ( ) his success.", options: ["on", "for", "at", "with"], a: 0 },
+            { q: "She apologized ( ) me for her mistake.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "He is afraid ( ) the dark.", options: ["of", "at", "in", "with"], a: 0 },
+            { q: "I am thankful ( ) your advice.", options: ["for", "to", "at", "with"], a: 0 },
+            { q: "She is similar ( ) her sister.", options: ["to", "with", "as", "like"], a: 0 },
+            { q: "He was accused ( ) theft.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "They were prevented ( ) attending.", options: ["from", "to", "at", "with"], a: 0 },
+            { q: "I am fond ( ) classical music.", options: ["of", "in", "at", "to"], a: 0 },
+            { q: "She is keen ( ) photography.", options: ["on", "in", "at", "to"], a: 0 },
+            { q: "He is tired ( ) the same old routine.", options: ["of", "from", "at", "by"], a: 0 },
+            { q: "I am surprised ( ) his decision.", options: ["at", "by", "in", "of"], a: 0 },
+            { q: "She is worried ( ) her test.", options: ["about", "of", "with", "at"], a: 0 },
+            { q: "He is anxious ( ) the future.", options: ["about", "of", "to", "for"], a: 0 },
+            { q: "I am bored ( ) this lecture.", options: ["with", "at", "in", "of"], a: 0 },
+            { q: "She is disappointed ( ) the movie.", options: ["with", "at", "in", "by"], a: 0 },
+            { q: "They are involved ( ) charity work.", options: ["in", "with", "at", "to"], a: 0 },
+            { q: "He is capable ( ) great things.", options: ["of", "to", "at", "with"], a: 0 },
+            { q: "She is satisfied ( ) her grade.", options: ["with", "at", "by", "of"], a: 0 },
+            { q: "I am conscious ( ) the risks.", options: ["of", "about", "to", "at"], a: 0 },
+            { q: "He is allergic ( ) nuts.", options: ["to", "for", "at", "with"], a: 0 },
+            { q: "They are composed ( ) members from all over.", options: ["of", "for", "at", "with"], a: 0 },
+            { q: "( ) you have any questions, please ask.", options: ["Should", "If", "Had", "Were"], a: 0 },
+            { q: "He ( ) to the store when it started raining.", options: ["was walking", "walked", "had walked", "walks"], a: 0 },
+            { q: "By the time I arrived, they ( ) dinner.", options: ["had finished", "finished", "have finished", "finish"], a: 0 },
+            { q: "I ( ) English for five years.", options: ["have been studying", "study", "am studying", "studied"], a: 0 },
+            { q: "She ( ) at this company since 2010.", options: ["has worked", "works", "is working", "worked"], a: 0 },
+            { q: "If I ( ) him, I would tell him the truth.", options: ["saw", "see", "have seen", "had seen"], a: 0 },
+            { q: "If I had known, I ( ) helped you.", options: ["would have", "would", "had", "have"], a: 0 },
+            { q: "She prefers coffee ( ) tea.", options: ["to", "than", "over", "more than"], a: 0 },
+            { q: "Neither John nor his friends ( ) there.", options: ["were", "was", "is", "has been"], a: 0 },
+            { q: "( ) you work, you will pass.", options: ["As long as", "Unless", "Despite", "Although"], a: 0 },
+            { q: "The project ( ) by next Friday.", options: ["will be finished", "will finish", "finishes", "is finished"], a: 0 },
+            { q: "He ( ) his keys in the car.", options: ["left", "has left", "had left", "was left"], a: 0 },
+            { q: "I ( ) to that museum twice.", options: ["have been", "went", "go", "was going"], a: 0 },
+            { q: "She ( ) her friend when she saw the accident.", options: ["was visiting", "visited", "visits", "has visited"], a: 0 },
+            { q: "If you ( ) water, it freezes.", options: ["heat", "heated", "heating", "are heating"], a: 0 },
+            { q: "I ( ) him yesterday.", options: ["saw", "have seen", "see", "had seen"], a: 0 },
+            { q: "She ( ) her homework before dinner.", options: ["had finished", "finished", "finishes", "has finished"], a: 0 },
+            { q: "They ( ) to the park every Sunday.", options: ["go", "are going", "went", "have gone"], a: 0 },
+            { q: "He ( ) a doctor for 20 years.", options: ["has been", "is", "was", "would be"], a: 0 },
+            { q: "If it ( ) tomorrow, we will stay home.", options: ["rains", "rained", "rain", "will rain"], a: 0 },
+            { q: "She ( ) very fast.", options: ["runs", "is running", "run", "has run"], a: 0 },
+            { q: "I ( ) him since high school.", options: ["have known", "know", "knew", "was knowing"], a: 0 },
+            { q: "They ( ) lunch at the moment.", options: ["are having", "have", "had", "will have"], a: 0 },
+            { q: "He ( ) a book when I called.", options: ["was reading", "read", "reads", "has read"], a: 0 },
+            { q: "If I ( ) time, I would go.", options: ["had", "have", "would have", "will have"], a: 0 },
+            { q: "She ( ) the report by 5 PM.", options: ["will have finished", "finishes", "finished", "has finished"], a: 0 },
+            { q: "We ( ) at this school for two years.", options: ["have been", "are", "were", "would be"], a: 0 },
+            { q: "He ( ) for a job for months.", options: ["has been looking", "looks", "looked", "is looking"], a: 0 },
+            { q: "If she ( ) studied, she would have passed.", options: ["had", "has", "have", "would have"], a: 0 },
+            { q: "I ( ) my umbrella.", options: ["lost", "have lost", "had lost", "am losing"], a: 0 },
+            { q: "They ( ) in London for 10 years.", options: ["have lived", "live", "lived", "are living"], a: 0 },
+            { q: "He ( ) a great deal of work.", options: ["has done", "does", "did", "was doing"], a: 0 },
+            { q: "If we ( ) sooner, we would have seen him.", options: ["had left", "left", "leave", "have left"], a: 0 },
+            { q: "She ( ) a new dress.", options: ["bought", "has bought", "buys", "is buying"], a: 0 },
+            { q: "We ( ) this movie before.", options: ["have seen", "see", "saw", "had seen"], a: 0 },
+            { q: "He ( ) a teacher.", options: ["became", "has become", "becomes", "is becoming"], a: 0 },
+            { q: "If you ( ) hard, you succeed.", options: ["work", "worked", "working", "will work"], a: 0 },
+            { q: "She ( ) her wallet.", options: ["found", "has found", "finds", "was finding"], a: 0 },
+            { q: "I ( ) that noise before.", options: ["have heard", "hear", "heard", "had heard"], a: 0 },
+            { q: "They ( ) in the garden.", options: ["are playing", "play", "played", "have played"], a: 0 },
+            { q: "He ( ) to the radio.", options: ["is listening", "listens", "listened", "has listened"], a: 0 },
+            { q: "If I ( ) rich, I would travel.", options: ["were", "am", "was", "be"], a: 0 },
+            { q: "She ( ) the letter.", options: ["wrote", "has written", "writes", "is writing"], a: 0 },
+            { q: "We ( ) each other for a long time.", options: ["have known", "know", "knew", "had known"], a: 0 },
+            { q: "He ( ) his hair.", options: ["cut", "has cut", "cuts", "is cutting"], a: 0 },
+            { q: "If it ( ) sunny, we would walk.", options: ["were", "is", "was", "be"], a: 0 },
+            { q: "She ( ) her car.", options: ["washed", "has washed", "washes", "is washing"], a: 0 },
+            { q: "I ( ) him today.", options: ["have seen", "see", "saw", "had seen"], a: 0 },
+            { q: "They ( ) all the food.", options: ["have eaten", "eat", "ate", "had eaten"], a: 0 },
+            { q: "He ( ) his exam.", options: ["passed", "has passed", "passes", "is passing"], a: 0 },
+            { q: "She is ( ) to leave now.", options: ["about", "ready", "due", "all of these"], a: 3 },
+            { q: "I found the book ( ) on the shelf.", options: ["lying", "laying", "laid", "lied"], a: 0 },
+            { q: "He ( ) me about the change.", options: ["told", "said", "spoke", "talked"], a: 0 },
+            { q: "She ( ) that she was tired.", options: ["said", "told", "spoke", "talked"], a: 0 },
+            { q: "We ( ) about the plan.", options: ["talked", "told", "said", "spoke"], a: 0 },
+            { q: "He ( ) to me in English.", options: ["spoke", "told", "said", "talked"], a: 0 },
+            { q: "I ( ) my homework.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a mistake.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) an effort.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) the dishes.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a decision.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) his best.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) a promise.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a mess.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) exercises.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) a choice.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) research.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) a suggestion.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) business.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) friends.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a phone call.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) work.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) progress.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) his nails.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) money.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a report.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) a plan.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) the cleaning.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a noise.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) his duty.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) a profit.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a favor.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) a fire.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a test.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) an appointment.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a fortune.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) the ironing.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a bed.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a living.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) the shopping.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a speech.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a discovery.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a change.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a list.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a record.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) an attempt.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a reservation.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a complaint.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a mess.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a scene.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) up his mind.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) progress.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a mistake.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) an excuse.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a suggestion.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a profit.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a promise.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a bed.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a decision.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) an attempt.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a call.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a change.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a discovery.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a speech.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a record.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a list.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a reservation.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a complaint.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a mess.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a scene.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a fortune.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a living.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) an appointment.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a fire.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a favor.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) housework.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) the laundry.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) the dishes.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) business.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) research.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) exercises.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) my duty.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) a test.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) the shopping.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) the ironing.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "She ( ) her best.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "He ( ) homework.", options: ["did", "made", "had", "got"], a: 0 },
+            { q: "I ( ) a mistake.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) an effort.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a decision.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a promise.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a mess.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) an appointment.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a choice.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) a list.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a call.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) progress.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "She ( ) an excuse.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "He ( ) a suggestion.", options: ["made", "did", "had", "got"], a: 0 },
+            { q: "I ( ) a reservation.", options: ["made", "did", "had", "got"], a: 0 }
+
+        ];
+
+        const quizDiv = document.getElementById('quiz');
+
+        let correctCount = 0;
+        let wrongCount = 0;
+        let answered = 0;
+
+        function updateStats() {
+
+            document.getElementById('correct').innerText = correctCount;
+            document.getElementById('wrong').innerText = wrongCount;
+
+            const percentage = Math.round((correctCount / questionBank.length) * 100);
+
+            document.getElementById('score').innerText = percentage + "%";
+
+            if (answered === questionBank.length) {
+                showSummary();
+            }
+        }
+
+        function showSummary() {
+
+            const percentage = Math.round((correctCount / questionBank.length) * 100);
+
+            document.getElementById('summary').style.display = 'block';
+
+            document.getElementById('totalQ').innerText = questionBank.length;
+            document.getElementById('finalCorrect').innerText = correctCount;
+            document.getElementById('finalWrong').innerText = wrongCount;
+            document.getElementById('finalScore').innerText = percentage + "%";
+
+            document.getElementById('progressBar').style.width = percentage + "%";
+
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        questionBank.forEach((item, index) => {
+
+            const div = document.createElement('div');
+            div.className = 'card';
+
+            div.innerHTML = `
+            <div class="question">
+                <strong>Q${index + 1}.</strong> ${item.q}
+            </div>
+        `;
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+
+            item.options.forEach((opt, i) => {
+
+                const btn = document.createElement('button');
+                btn.innerText = opt;
+
+                btn.onclick = function () {
+
+                    if (optionsDiv.classList.contains('disabled')) return;
+
+                    optionsDiv.classList.add('disabled');
+
+                    const buttons = optionsDiv.querySelectorAll('button');
+
+                    if (i === item.a) {
+
+                        btn.classList.add('correct');
+                        correctCount++;
+
+                    } else {
+
+                        btn.classList.add('wrong');
+                        buttons[item.a].classList.add('correct');
+
+                        wrongCount++;
+                    }
+
+                    answered++;
+                    updateStats();
+                };
+
+                optionsDiv.appendChild(btn);
+            });
+
+            div.appendChild(optionsDiv);
+            quizDiv.appendChild(div);
+        });
+
+    </script>
+
+</body>
+
+</html>
