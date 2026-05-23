@@ -4,21 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEXT English Mastery</title>
+    <title>MEXT English Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div class="home-container">
-        <div class="hero-card">
-            <h1>MEXT English Mastery</h1>
-            <p>Choose a practice mode</p>
-            <div class="home-buttons">
-                <a href="mcq-question.html">MCQ Test </a>
-                <a href="error-correction-question.html">Error Correction</a>
+
+    <!-- ══════════════ HOME ══════════════ -->
+    <div id="home" class="screen active">
+        <div class="header-container">
+            <div class="badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                </svg>
+                MEXT Scholarship
+            </div>
+            <h1>English <span>Exam</span> Prep</h1>
+            <p class="subtitle">Practice official MEXT qualifying exams. Track your progress, review your mistakes, and
+                master the test.</p>
+        </div>
+
+        <!-- Year Selector -->
+        <div class="year-selector" id="yearSelector"></div>
+
+        <!-- Section Grid -->
+        <div class="section-grid" id="sectionGrid"></div>
+
+        <div class="start-btn-wrapper" id="startBtnWrapper">
+            <button id="startBtn" class="btn btn-primary start-btn" onclick="startQuiz()" disabled>
+                Start Practice Session
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════ QUIZ ══════════════ -->
+    <div id="quiz" class="screen">
+
+        <!-- Sticky Header Area -->
+        <div class="quiz-sticky-top">
+            <div class="quiz-header">
+                <button class="back-btn" onclick="goHome()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Exit
+                </button>
+
+                <div class="quiz-controls">
+                    <label for="qpp">View:</label>
+                    <div class="select-wrapper">
+                        <select id="qpp" onchange="changeQPP(this.value)">
+                            <option value="1">1 Question</option>
+                            <option value="5">5 Questions</option>
+                            <option value="10">10 Questions</option>
+                            <option value="all">All Questions</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="quiz-meta">
+                    <div class="quiz-progress-text" id="progressText">Page 1 / 10</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Quiz Area -->
+        <div class="question-area" id="questionArea"></div>
+
+        <div class="quiz-section-label" id="sectionLabel">Section I</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="nav-btns">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevQ()">Previous</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQ()">Next</button>
+        </div>
+    </div>
+
+    <!-- ══════════════ RESULTS ══════════════ -->
+    <div id="results" class="screen">
+        <div class="results-container">
+            <div class="score-ring" id="scoreRing">
+                <div class="score-num"><span id="scorePct">0</span>%</div>
+            </div>
+            <div class="result-title" id="resultTitle"></div>
+            <div class="result-sub" id="resultSub"></div>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-val g" id="statCorrect">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val r" id="statWrong">0</div>
+                    <div class="stat-label">Wrong</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="statTotal">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+            </div>
+
+            <div class="result-btns">
+                <button class="btn btn-secondary" onclick="reviewAnswers()">Review Answers</button>
+                <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
             </div>
         </div>
     </div>
+
+    <!-- Load Data and Logic -->
+    <script src="data/data.js"></script>
+    <script src="js/script.js"></script>
 </body>
 
 </html>
