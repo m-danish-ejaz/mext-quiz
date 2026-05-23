@@ -53,7 +53,7 @@ function toggleSection(i) {
         selectedSections.add(i);
     }
     document.getElementById(`sc${i}`).classList.toggle('selected');
-    updateStartButton(); 
+    updateStartButton();
 }
 
 function updateStartButton() {
@@ -123,12 +123,20 @@ function renderPage() {
     let html = '';
     let cardIndex = 0;
 
+    let renderedPassages = new Set();
+
     for (let i = startIndex; i < endIndex; i++) {
         const q = quizQuestions[i];
         const answered = userAnswers[i] !== null;
         const locked = answered || reviewMode;
         const delay = (cardIndex * 0.08).toFixed(2);
         cardIndex++;
+
+        const section = allData[currentYearIdx].sections[q.sectionIdx];
+        if (section && section.passage && !renderedPassages.has(q.sectionIdx)) {
+            html += `<div class="q-passage" style="margin-bottom: 24px; animation: fadeUp 0.5s ease forwards;">${section.passage}</div>`;
+            renderedPassages.add(q.sectionIdx);
+        }
 
         html += `<div class="question-card" id="q-card-${i}" style="animation-delay: ${delay}s">
             <div class="q-label">Question ${i + 1} <span class="q-section-tag">Section ${q.sectionId}</span></div>`;
@@ -141,8 +149,25 @@ function renderPage() {
 
         if (locked) {
             const correct = userAnswers[i] === q.a;
-            html += `<div class="feedback ${correct ? 'correct-fb' : 'wrong-fb'} show">
-                ${correct ? '<strong>✓ Correct!</strong> Well done.' : `<strong>✗ Incorrect.</strong> The correct answer is <strong>${String.fromCharCode(65 + q.a)}</strong>${q.explain ? ' — ' + q.explain : ''}.`}
+            let answerLetter = String.fromCharCode(65 + q.a);
+
+            let explanationHtml = '';
+            if ((reviewMode || !correct) && q.explain) {
+                explanationHtml = `
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(0,0,0,0.15); font-size: 0.95em; color: #444;">
+                        <strong style="color: #333;">Reason:</strong> ${q.explain}
+                    </div>
+                `;
+            }
+
+            html += `<div class="feedback ${correct ? 'correct-fb' : 'wrong-fb'} show" style="display: flex; flex-direction: column;">
+                <div>
+                    ${correct
+                    ? '<strong>✓ Correct!</strong> Well done.'
+                    : `<strong>✗ Incorrect.</strong> The correct answer is <strong>${answerLetter}</strong>.`
+                }
+                </div>
+                ${explanationHtml}
             </div>`;
         }
 
@@ -168,7 +193,10 @@ function goToQuestion(globalIndex) {
 function buildMCQuestion(q, globalIndex, locked) {
     const letters = ['A', 'B', 'C', 'D'];
     let html = `<div class="q-text">${q.q}</div>`;
-    if (q.context) html += `<div class="q-passage">${q.context}</div>`;
+
+    if (q.context) {
+        html += `<div class="q-passage">${q.context}</div>`;
+    }
 
     html += `<div class="options">`;
 
@@ -181,10 +209,11 @@ function buildMCQuestion(q, globalIndex, locked) {
         } else if (userAnswers[globalIndex] === i) cls = 'selected';
 
         html += `<div class="opt ${cls} ${locked ? 'locked' : ''}" onclick="selectAnswer(${globalIndex}, ${i})">
-        <div class="opt-letter">${letters[i]}</div>
-        <span>${opt}</span>
-    </div>`;
+            <div class="opt-letter">${letters[i]}</div>
+            <span>${opt}</span>
+        </div>`;
     });
+
     html += `</div>`;
     return html;
 }
@@ -228,6 +257,24 @@ function selectAnswer(globalIndex, optIndex) {
 }
 
 function nextQ() {
+    if (!reviewMode) {
+        const startIndex = currentPage * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, quizQuestions.length);
+
+        let allAnswered = true;
+        for (let i = startIndex; i < endIndex; i++) {
+            if (userAnswers[i] === null) {
+                allAnswered = false;
+                break;
+            }
+        }
+
+        if (!allAnswered) {
+            showModal("Missing Answers", "Please select an answer for all questions on this page before proceeding.");
+            return;
+        }
+    }
+
     const totalPages = Math.ceil(quizQuestions.length / questionsPerPage);
     if (currentPage < totalPages - 1) {
         currentPage++;
@@ -277,6 +324,13 @@ function showResults() {
 function reviewAnswers() {
     reviewMode = true;
     currentPage = 0;
+    questionsPerPage = quizQuestions.length;
+
+    const qppDropdown = document.getElementById('qpp');
+    if (qppDropdown) {
+        qppDropdown.value = "all";
+    }
+
     showScreen('quiz');
     renderPage();
 }
@@ -287,4 +341,16 @@ function showScreen(id) {
     window.scrollTo(0, 0);
 }
 
+function showModal(title, message) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = message;
+    document.getElementById('customModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('customModal').classList.remove('active');
+}
+
 window.onload = init;
+
+
